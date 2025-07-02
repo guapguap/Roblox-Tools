@@ -71,7 +71,6 @@ A Python-based suite of tools for managing Roblox cookies, including a cookie gr
    The menu displays:
    ```
    Select an option:
-   [1] Check Roblox Cookie
-   [2] Grab and Set Roblox Cookie
+   [1] Checker
+   [2] Login by cookie
    [0] Exit
-   Enter
