@@ -3,7 +3,6 @@ import time
 import sys
 import webbrowser
 
-# Color gradients
 RED_GRADIENT = [
     "\033[38;2;80;0;0m",
     "\033[38;2;110;0;0m",
@@ -18,7 +17,6 @@ RED_GRADIENT = [
 PURPLE = "\033[38;2;128;0;128m"
 RESET = "\033[0m"
 
-# ASCII logo
 ascii_logo = r"""
 ▒███████▒ ▄▄▄██▀▀▀▓██   ██▓ ▄▄▄      
 ▒ ▒ ▒ ▄▀░   ▒██    ▒██  ██▒▒████▄    
@@ -32,7 +30,6 @@ ascii_logo = r"""
 ░   
 """
 
-# Menu lines
 lines = [
     "Select an option:",
     "[1] Checker",
@@ -42,7 +39,6 @@ lines = [
     "Invalid selection."
 ]
 
-# Cookie-Editor instructions
 cookie_instructions = [
     "1. Ensure you are logged in to Roblox on your browser.",
     "2. Install Cookie-Editor from the Chrome Web Store.",
@@ -73,7 +69,6 @@ def main():
             print(RED_GRADIENT[6] + lines[4], end='', flush=True)
             choice = input()
             print(RESET, end='')
-
             if choice == "1":
                 os.system("start cmd /k python scripts/checker.py")
                 sys.exit()
@@ -83,7 +78,7 @@ def main():
                 show_cookie_instructions()
                 print(PURPLE + "\nWaiting 5 minutes before closing..." + RESET)
                 spinner = ['/', '-', '\\', '|']
-                for _ in range(300):  # 300 seconds = 5 minutes
+                for _ in range(300):
                     for spin in spinner:
                         print(PURPLE + f"\rTime left: {300 - _}s {spin} " + RESET, end='', flush=True)
                         time.sleep(0.25)
@@ -99,7 +94,6 @@ def main():
                 sys.exit()
             else:
                 print(RED_GRADIENT[8] + lines[5] + RESET)
-
         except KeyboardInterrupt:
             pass
 
