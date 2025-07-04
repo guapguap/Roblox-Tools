@@ -70,9 +70,9 @@ A Python-based suite of tools for managing Roblox cookies, including a cookie gr
    The menu displays:
    ```
    Select an option:
+   
    [1] Checker
    [2] Login by cookie
    [0] Exit
-
 
 !!! CREDS TO @DankoOfficial, HE MADE THE CHECKER BUT I EDITED IT FROM BOT TO WEBHOOK !!!
