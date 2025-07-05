@@ -16,7 +16,7 @@ A Python-based suite of tools for managing Roblox cookies, including a cookie gr
 - **Discord Webhooks** for receiving cookie data and account information.
 - A working internet connection.
 
-![Output example](https://imgur.com/a/y7mwspN)
+![Screenshot](https://i.imgur.com/nbmQov2.png)
 
 ## Installation
 
