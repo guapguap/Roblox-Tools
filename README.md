@@ -51,7 +51,6 @@ A Python-based suite of tools for managing Roblox cookies, including a cookie gr
    Ensure the following structure on your Desktop:
    ```
    Roblox Tools\
-   ├── grabber.py
    ├── menu.py
    ├── edit file in this folder\
    │   └── .env
