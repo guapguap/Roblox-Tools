@@ -33,19 +33,13 @@ A Python-based suite of tools for managing Roblox cookies, including a cookie gr
    cd roblox-tools
    ```
 
-2. **Set Up a Virtual Environment (Optional but Recommended)**
-   ```bash
-   python -m venv venv
-   .\venv\Scripts\activate
-   ```
-
-3. **Install Dependencies**
+2. **Install Dependencies**
    Run the provided `SETUP.bat` to install required Python packages:
    ```bash
    requests, python-dotenv and pywin32
    ```
 
-4. **Create the `.env` File**
+3. **Create the `.env` File**
    - Create a folder named `edit file in this folder` inside `C:\Users\YourUsername\Desktop\Roblox Tools`.
    - Inside this folder, create a file named `.env` with the following content:
      ```env
@@ -57,7 +51,7 @@ A Python-based suite of tools for managing Roblox cookies, including a cookie gr
      2. Edit a channel, navigate to Integrations, and create a webhook.
      3. Copy the webhook URL and paste it into the `.env` file.
 
-5. **Directory Structure**
+4. **Directory Structure**
    Ensure the following structure on your Desktop:
    ```
    Roblox Tools\
