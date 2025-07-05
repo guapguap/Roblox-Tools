@@ -36,7 +36,7 @@ A Python-based suite of tools for managing Roblox cookies, including a cookie gr
 2. **Install Dependencies**
    Run the provided `SETUP.bat` to install required Python packages:
    ```bash
-   requests, python-dotenv and pywin32
+   requests, customtkinter, pyinstaller, pywin32 and python-dotenv
    ```
 
 3. **Create the `.env` File**
