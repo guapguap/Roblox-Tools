@@ -75,5 +75,4 @@ A Python-based suite of tools for managing Roblox cookies, including a cookie gr
    [2] Login by cookie
    [3] Builder
    [0] Exit
-
 !!! CREDS TO @DankoOfficial, HE MADE THE CHECKER BUT I EDITED IT FROM BOT TO WEBHOOK !!!
