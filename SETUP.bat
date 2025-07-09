@@ -23,13 +23,13 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-pip install requests customtkinter pyinstaller pywin32 python-dotenv
+pip install requests customtkinter pyinstaller pywin32 python-dotenv cryptography
 if %ERRORLEVEL% neq 0 (
     pause
     exit /b 1
 )
 
-for %%i in (requests customtkinter pyinstaller pywin32 python_dotenv) do (
+for %%i in (requests customtkinter pyinstaller pywin32 python_dotenv cryptography) do (
     pip show %%i >nul 2>&1
     if !ERRORLEVEL! neq 0 (
         pause
