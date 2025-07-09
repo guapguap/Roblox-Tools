@@ -29,7 +29,7 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-for %%i in (requests customtkinter pyinstaller pywin32 python_dotenv cryptography) do (
+for %%i in (requests customtkinter pyinstaller pywin32 python-dotenv cryptography) do (
     pip show %%i >nul 2>&1
     if !ERRORLEVEL! neq 0 (
         pause
