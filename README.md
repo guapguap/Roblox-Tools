@@ -21,7 +21,7 @@ A Python-based suite of tools for managing Roblox cookies, including a cookie gr
 <div align="center">
     <img style="border-radius: 15px; display: block; margin-left: auto; margin-right: auto; margin-bottom:20px;" width="70%" src="https://i.imgur.com/1OfP2mw.png"></img>
     <img style="border-radius: 15px; display: block; margin-left: auto; margin-right: auto; margin-bottom:20px;" width="70%" src="https://i.imgur.com/jxSjAxr.png"></img>
-    <img style="border-radius: 15px; display: block; margin-left: auto; margin-right: auto; margin-bottom:20px;" width="70%" src="https://i.imgur.com/pOyuY9i.png"></img>
+    <img style="border-radius: 15px; display: block; margin-left: auto; margin-right: auto; margin-bottom:20px;" width="70%" src="https://cdn.discordapp.com/attachments/1394403747492397199/1394448140408590416/image.png?ex=6876d888&is=68758708&hm=cf56a1ed78743ab2dba0147bf5cd288db2dcb971dca4cd59981e4a9b94b6f87c&"></img>
     <img style="border-radius: 15px; display: block; margin-left: auto; margin-right: auto; margin-bottom:20px;" width="70%" src="https://i.imgur.com/HRutFJ3.png"></img>  
 </div>
 
